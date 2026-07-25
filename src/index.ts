@@ -3,8 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 
-import { swaggerSpec } from "./config/swagger";
-import downloadRoute from "./routes/download";
+//import { swaggerSpec } from "./config/swagger";
+//import downloadRoute from "./routes/download";
 
 dotenv.config();
 
@@ -13,13 +13,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(
-  "/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec)
-);
+//app.use(
+  //"/docs",
+  //swaggerUi.serve,
+ // swaggerUi.setup(swaggerSpec)
+//);
 
-app.use("/download", downloadRoute);
+//app.use("/download", downloadRoute);
 
 app.get("/", (_req, res) => {
   res.json({
