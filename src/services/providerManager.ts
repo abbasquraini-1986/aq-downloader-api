@@ -30,33 +30,61 @@ async download(
   console.log("Detected platform:", platform);
   console.log("================================");
 
+  let matchedProvider = false;
+  const failures: string[] = [];
+
   for (const provider of this.providers) {
 
-    console.log("Provider:", provider.name);
-    console.log("Supported platforms:", provider.supportedPlatforms);
-    console.log("Supports detected platform?", provider.supports(platform));
+    console.log("Checking provider:", provider.name);
 
     if (!provider.supports(platform)) {
+      console.log("❌ Doesn't support");
       continue;
     }
+
+    matchedProvider = true;
+
+    console.log("✅ Supports platform");
 
     try {
 
       const result = await provider.download(url, format);
 
-      if (result.success) {
-        return result;
-      }
+      console.log(`SUCCESS: ${provider.name}`);
 
-    } catch (err) {
-      console.error(err);
+      return result;
+
+    } catch (error) {
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : String(error);
+
+      console.error(`${provider.name} FAILED`);
+      console.error(message);
+
+      failures.push(`${provider.name}: ${message}`);
+
     }
+
+  }
+
+  if (!matchedProvider) {
+
+    return {
+      success: false,
+      provider: "none",
+      error: `No provider supports '${platform}'.`
+    };
+
   }
 
   return {
     success: false,
     provider: "none",
-    error: `No provider available for platform '${platform}'.`
+    error: failures.join("\n")
   };
-} 
+
+}
 }
