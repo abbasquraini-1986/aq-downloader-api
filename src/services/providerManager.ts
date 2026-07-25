@@ -19,50 +19,44 @@ export class ProviderManager {
 
   }
 
-  async download(
-    url: string,
-    format?: string
-  ): Promise<DownloadResult> {
+async download(
+  url: string,
+  format?: string
+): Promise<DownloadResult> {
 
-    const platform: Platform = PlatformDetector.detect(url);
+  const platform = PlatformDetector.detect(url);
 
-    console.log(`Detected platform: ${platform}`);
+  console.log("================================");
+  console.log("Detected platform:", platform);
+  console.log("================================");
 
-    for (const provider of this.providers) {
+  for (const provider of this.providers) {
 
-      if (!provider.supports(platform)) {
-        continue;
-      }
+    console.log("Provider:", provider.name);
+    console.log("Supported platforms:", provider.supportedPlatforms);
+    console.log("Supports detected platform?", provider.supports(platform));
 
-      try {
-
-        console.log(`Trying provider: ${provider.name}`);
-
-        const result = await provider.download(url, format);
-
-        if (result.success) {
-
-          console.log(`✔ Provider ${provider.name} succeeded`);
-
-          return result;
-        }
-
-        console.log(`✘ Provider ${provider.name} returned unsuccessful result`);
-
-      } catch (error) {
-
-        console.error(`✘ Provider ${provider.name} failed`, error);
-
-      }
-
+    if (!provider.supports(platform)) {
+      continue;
     }
 
-    return {
-      success: false,
-      provider: "none",
-      error: `No provider available for platform '${platform}'.`
-    };
+    try {
 
+      const result = await provider.download(url, format);
+
+      if (result.success) {
+        return result;
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
   }
 
+  return {
+    success: false,
+    provider: "none",
+    error: `No provider available for platform '${platform}'.`
+  };
+} 
 }
