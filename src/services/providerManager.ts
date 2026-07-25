@@ -19,7 +19,10 @@ export class ProviderManager {
 
   }
 
-  async download(url: string): Promise<DownloadResult> {
+  async download(
+    url: string,
+    format?: string
+  ): Promise<DownloadResult> {
 
     const platform: Platform = PlatformDetector.detect(url);
 
@@ -35,7 +38,7 @@ export class ProviderManager {
 
         console.log(`Trying provider: ${provider.name}`);
 
-        const result = await provider.download(url);
+        const result = await provider.download(url, format);
 
         if (result.success) {
 

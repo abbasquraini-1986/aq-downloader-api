@@ -23,7 +23,10 @@ export class YtDlpProvider implements Provider {
     return this.supportedPlatforms.includes(platform);
   }
 
-  async download(url: string): Promise<DownloadResult> {
+  async download(
+    url: string,
+    format?: string
+  ): Promise<DownloadResult> {
 
     try {
 
@@ -41,31 +44,47 @@ export class YtDlpProvider implements Provider {
 
       const info = JSON.parse(metadataOutput);
 
-      // Direct URL
-      const mediaUrl = await this.runner.run(
-        "python3",
-        [
-          "-m",
-          "yt_dlp",
-          "-g",
-          "--no-playlist",
-          url
-        ]
+      // Build command for direct URL
+      const command = [
+        "-m",
+        "yt_dlp"
+      ];
+
+      if (format) {
+        command.push("-f", format);
+      }
+
+      command.push(
+        "-g",
+        "--no-playlist",
+        url
       );
 
-      // Available formats
+      const mediaUrl = await this.runner.run(
+        "python3",
+        command
+      );
+
+      // Build formats list
       const formats: MediaFormat[] = [];
 
       if (Array.isArray(info.formats)) {
 
-        for (const format of info.formats) {
+        for (const item of info.formats) {
+
+          // Ignore storyboards
+          if (
+            item.format_id?.startsWith("sb")
+          ) {
+            continue;
+          }
 
           formats.push({
-            id: String(format.format_id),
-            quality: format.format_note ?? format.format ?? "Unknown",
-            extension: format.ext ?? "unknown",
-            hasAudio: format.acodec !== "none",
-            hasVideo: format.vcodec !== "none"
+            id: String(item.format_id),
+            quality: item.format_note ?? item.format ?? "Unknown",
+            extension: item.ext ?? "unknown",
+            hasAudio: item.acodec !== "none",
+            hasVideo: item.vcodec !== "none"
           });
 
         }
@@ -87,7 +106,9 @@ export class YtDlpProvider implements Provider {
 
       throw new Error(
         `yt-dlp failed: ${
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error
+            ? error.message
+            : String(error)
         }`
       );
 

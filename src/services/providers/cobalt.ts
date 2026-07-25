@@ -21,7 +21,13 @@ export class CobaltProvider implements Provider {
     return this.supportedPlatforms.includes(platform);
   }
 
-  async download(url: string): Promise<DownloadResult> {
+async download(
+
+  url: string,
+
+  _format?: string
+
+): Promise<DownloadResult> {
 
     const endpoint = process.env.COBALT_API_URL;
 

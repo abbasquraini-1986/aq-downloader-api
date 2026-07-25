@@ -5,7 +5,8 @@ const router = Router();
 const manager = new ProviderManager();
 
 router.post("/", async (req, res) => {
-  const { url } = req.body;
+
+  const { url, format } = req.body;
 
   if (!url) {
     return res.status(400).json({
@@ -14,9 +15,21 @@ router.post("/", async (req, res) => {
     });
   }
 
-  const result = await manager.download(url);
+  try {
 
-  return res.json(result);
+    const result = await manager.download(url, format);
+
+    return res.json(result);
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
+
+  }
+
 });
 
 export default router;

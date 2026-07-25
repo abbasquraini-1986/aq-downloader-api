@@ -34,6 +34,9 @@ export interface Provider {
 
   supports(platform: Platform): boolean;
 
-  download(url: string): Promise<DownloadResult>;
+  download(
+    url: string,
+    format?: string
+  ): Promise<DownloadResult>;
 
 }
