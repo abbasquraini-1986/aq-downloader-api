@@ -1,4 +1,4 @@
-import { Provider, DownloadResult } from "./provider";
+import { Provider, DownloadResult, MediaFormat } from "./provider";
 import { CommandRunner } from "../commandRunner";
 import { Platform } from "../platformDetector";
 
@@ -27,7 +27,7 @@ export class YtDlpProvider implements Provider {
 
     try {
 
-      // Get metadata
+      // Metadata
       const metadataOutput = await this.runner.run(
         "python3",
         [
@@ -41,7 +41,7 @@ export class YtDlpProvider implements Provider {
 
       const info = JSON.parse(metadataOutput);
 
-      // Get direct media URL
+      // Direct URL
       const mediaUrl = await this.runner.run(
         "python3",
         [
@@ -53,6 +53,25 @@ export class YtDlpProvider implements Provider {
         ]
       );
 
+      // Available formats
+      const formats: MediaFormat[] = [];
+
+      if (Array.isArray(info.formats)) {
+
+        for (const format of info.formats) {
+
+          formats.push({
+            id: String(format.format_id),
+            quality: format.format_note ?? format.format ?? "Unknown",
+            extension: format.ext ?? "unknown",
+            hasAudio: format.acodec !== "none",
+            hasVideo: format.vcodec !== "none"
+          });
+
+        }
+
+      }
+
       return {
         success: true,
         provider: this.name,
@@ -60,7 +79,8 @@ export class YtDlpProvider implements Provider {
         uploader: info.uploader,
         duration: info.duration,
         thumbnail: info.thumbnail,
-        downloadUrl: mediaUrl.trim()
+        downloadUrl: mediaUrl.trim(),
+        formats
       };
 
     } catch (error) {

@@ -1,5 +1,13 @@
 import { Platform } from "../platformDetector";
 
+export interface MediaFormat {
+  id: string;
+  quality: string;
+  extension: string;
+  hasAudio: boolean;
+  hasVideo: boolean;
+}
+
 export interface DownloadResult {
   success: boolean;
   provider: string;
@@ -7,9 +15,11 @@ export interface DownloadResult {
   title?: string;
   uploader?: string;
   duration?: number;
- thumbnail?: string;
+  thumbnail?: string;
 
   downloadUrl?: string;
+
+  formats?: MediaFormat[];
 
   error?: string;
 }
@@ -25,4 +35,5 @@ export interface Provider {
   supports(platform: Platform): boolean;
 
   download(url: string): Promise<DownloadResult>;
+
 }
