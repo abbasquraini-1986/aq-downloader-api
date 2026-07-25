@@ -27,22 +27,7 @@ export class YtDlpProvider implements Provider {
 
     try {
 
-      // Get metadata
-      const metadataOutput = await this.runner.run(
-        "python3",
-        [
-          "-m",
-          "yt_dlp",
-          "--dump-single-json",
-          "--no-playlist",
-          url
-        ]
-      );
-
-      const info = JSON.parse(metadataOutput);
-
-      // Get direct media URL
-      const mediaUrl = await this.runner.run(
+      const output = await this.runner.run(
         "python3",
         [
           "-m",
@@ -53,6 +38,8 @@ export class YtDlpProvider implements Provider {
         ]
       );
 
+      const info = JSON.parse(output);
+
       return {
         success: true,
         provider: this.name,
@@ -60,7 +47,7 @@ export class YtDlpProvider implements Provider {
         uploader: info.uploader,
         duration: info.duration,
         thumbnail: info.thumbnail,
-        downloadUrl: mediaUrl.trim()
+        downloadUrl: info.webpage_url
       };
 
     } catch (error) {

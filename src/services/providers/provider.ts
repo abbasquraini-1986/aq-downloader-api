@@ -1,25 +1,28 @@
+import { Platform } from "../platformDetector";
+
 export interface DownloadResult {
   success: boolean;
   provider: string;
+
   title?: string;
+  uploader?: string;
+  duration?: number;
+ thumbnail?: string;
+
   downloadUrl?: string;
+
   error?: string;
 }
 
 export interface Provider {
-  /**
-   * Friendly provider name
-   * Example: "yt-dlp"
-   */
+
   readonly name: string;
 
-  /**
-   * Can this provider handle this URL?
-   */
-  supports(url: string): boolean;
+  readonly priority: number;
 
-  /**
-   * Download the media
-   */
+  readonly supportedPlatforms: Platform[];
+
+  supports(platform: Platform): boolean;
+
   download(url: string): Promise<DownloadResult>;
 }
